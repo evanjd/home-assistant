@@ -2,7 +2,12 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.components.camera import ATTR_ENTITY_ID, SUPPORT_ON_OFF, Camera
+from homeassistant.components.camera import (
+    ATTR_ENTITY_ID,
+    SUPPORT_ON_OFF,
+    SUPPORT_STREAM,
+    Camera,
+)
 from homeassistant.components.ffmpeg import DATA_FFMPEG
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
@@ -111,7 +116,7 @@ class LogiCam(Camera):
     @property
     def supported_features(self):
         """Logi Circle camera's support turning on and off ("soft" switch)."""
-        return SUPPORT_ON_OFF
+        return SUPPORT_ON_OFF | SUPPORT_STREAM
 
     @property
     def device_info(self):
@@ -145,6 +150,10 @@ class LogiCam(Camera):
     async def async_camera_image(self):
         """Return a still image from the camera."""
         return await self._camera.live_stream.download_jpeg()
+
+    async def stream_source(self):
+        """Return the stream source."""
+        return await self._camera.live_stream.get_rtsp_url()
 
     async def async_turn_off(self):
         """Disable streaming mode for this camera."""
